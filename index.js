@@ -1,72 +1,26 @@
-import 'dotenv/config';
-import smartcar from 'smartcar';
-import { loadTokens, saveTokens } from './tokens.js';
+import { getStatus } from './status.js';
 
-// --- CarStatus: show your BMW's status via Smartcar ---
-// Prerequisite: run `node auth.js` once to connect your car.
+// --- CarStatus: your car's status from the command line ---
+// Prerequisite: `npm run auth` once to connect your car. `npm run web` shows the
+// same reading as a dashboard.
 
-const { SMARTCAR_CLIENT_ID, SMARTCAR_CLIENT_SECRET } = process.env;
-const redirectUri = process.env.SMARTCAR_REDIRECT_URI || 'http://localhost:8000/callback';
-const mode = process.env.SMARTCAR_MODE || 'live';
-
-let tokens = loadTokens();
-if (!tokens) {
-  console.error('❌ Not connected yet. Run `node auth.js` first to authorize your BMW.');
-  process.exit(1);
-}
-
-// Refresh the access token if it has expired.
-if (new Date(tokens.expiration) <= new Date()) {
-  console.log('🔄 Access token expired — refreshing…');
-  const client = new smartcar.AuthClient({
-    clientId: SMARTCAR_CLIENT_ID,
-    clientSecret: SMARTCAR_CLIENT_SECRET,
-    redirectUri,
-    mode,
-  });
-  tokens = await client.exchangeRefreshToken(tokens.refreshToken);
-  saveTokens(tokens);
-}
-
-// Try an endpoint, returning null (and a quiet note) if the car/plan doesn't support it.
-async function tryGet(label, fn) {
-  try {
-    return await fn();
-  } catch (err) {
-    console.log(`  ${label}: not available (${err?.message ?? 'unsupported'})`);
-    return null;
-  }
-}
+const bar = (pct) => {
+  const n = Math.round((pct / 100) * 20);
+  return '█'.repeat(n) + '░'.repeat(20 - n);
+};
 
 try {
-  const { vehicles } = await smartcar.getVehicles(tokens.accessToken);
-  if (!vehicles.length) {
-    console.log('✅ Connected, but no vehicles linked to this Smartcar account.');
-    process.exit(0);
+  const s = await getStatus();
+  console.log(`\n🚗 ${s.name}${s.mode === 'simulated' ? '  (Smartcar simulated vehicle)' : ''}`);
+  if (s.name !== [s.year, s.make, s.model].filter(Boolean).join(' ')) {
+    console.log(`   ${[s.year, s.make, s.model].filter(Boolean).join(' ')}${s.powertrain && s.powertrain !== s.model ? ` · ${s.powertrain}` : ''}`);
   }
-
-  const vehicle = new smartcar.Vehicle(vehicles[0], tokens.accessToken, { unitSystem: 'imperial' });
-
-  const attrs = await tryGet('Info', () => vehicle.attributes());
-  if (attrs) console.log(`\n🚗 ${attrs.year ?? ''} ${attrs.make ?? ''} ${attrs.model ?? ''}`.trim());
-  else console.log('\n🚗 Your BMW');
-
-  console.log('📊 Status:');
-
-  const odo = await tryGet('Odometer', () => vehicle.odometer());
-  if (odo) console.log(`  Odometer:  ${Math.round(odo.distance).toLocaleString()} mi`);
-
-  const fuel = await tryGet('Fuel', () => vehicle.fuel());
-  if (fuel) console.log(`  Fuel:      ${Math.round(fuel.percentRemaining * 100)}%  (~${Math.round(fuel.range)} mi range)`);
-
-  const battery = await tryGet('Battery', () => vehicle.battery());
-  if (battery) console.log(`  Battery:   ${Math.round(battery.percentRemaining * 100)}%  (~${Math.round(battery.range)} mi range)`);
-
-  const loc = await tryGet('Location', () => vehicle.location());
-  if (loc) console.log(`  Location:  ${loc.latitude.toFixed(5)}, ${loc.longitude.toFixed(5)}`);
-
-  console.log('\n🎉 Done.');
+  console.log('\n📊 Status');
+  console.log(`  Odometer  ${s.odometer == null ? 'not reported' : `${Math.round(s.odometer).toLocaleString()} ${s.odometerUnit}`}`);
+  console.log(`  Fuel      ${s.fuel == null ? 'not reported' : `${bar(s.fuel)} ${Math.round(s.fuel)}%`}`);
+  console.log(`  Battery   ${s.battery == null ? 'not reported' : `${bar(s.battery)} ${Math.round(s.battery)}%`}`);
+  console.log('');
 } catch (err) {
-  console.error('\n❌ Failed to fetch vehicle data:', err?.message ?? err);
+  console.error(`\n❌ ${err?.message ?? err}`);
   process.exit(1);
 }

@@ -1,17 +1,15 @@
 import { writeFileSync, readFileSync, existsSync } from 'node:fs';
 
-// Where Smartcar OAuth tokens are cached. Gitignored — contains access + refresh tokens.
-export const TOKEN_FILE = new URL('./smartcar_tokens.json', import.meta.url);
+// Which Smartcar user connected a car. With the v3 API that is all CarStatus has
+// to remember: data is read with an application token (see status.js), so there
+// are no per-user access/refresh tokens to cache any more. Gitignored anyway.
+export const CONNECTION_FILE = new URL('./smartcar_connection.json', import.meta.url);
 
-export function saveTokens(access) {
-  writeFileSync(TOKEN_FILE, JSON.stringify(access, null, 2), 'utf8');
+export function saveConnection(conn) {
+  writeFileSync(CONNECTION_FILE, JSON.stringify({ ...conn, savedAt: new Date().toISOString() }, null, 2), 'utf8');
 }
 
-export function loadTokens() {
-  if (!existsSync(TOKEN_FILE)) return null;
-  const raw = JSON.parse(readFileSync(TOKEN_FILE, 'utf8'));
-  // Revive Date fields that JSON stringified to ISO strings.
-  if (raw.expiration) raw.expiration = new Date(raw.expiration);
-  if (raw.refreshExpiration) raw.refreshExpiration = new Date(raw.refreshExpiration);
-  return raw;
+export function loadConnection() {
+  if (!existsSync(CONNECTION_FILE)) return null;
+  return JSON.parse(readFileSync(CONNECTION_FILE, 'utf8'));
 }

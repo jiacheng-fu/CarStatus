@@ -18,6 +18,7 @@ config.local.json
 # Auth token caches (contain access + refresh tokens)
 access_token
 smartcar_tokens.json
+smartcar_connection.json
 
 # Build output
 dist/
