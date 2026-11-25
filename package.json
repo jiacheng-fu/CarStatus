@@ -1,13 +1,12 @@
 {
   "name": "carstatus",
   "version": "0.1.0",
-  "description": "Your car's status (odometer, fuel, battery) from the command line or a small dashboard, via the Smartcar API v3",
+  "description": "Your car's status (odometer, fuel, battery) from the command line, via the Smartcar API v3",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "auth": "node auth.js",
     "start": "node index.js",
-    "web": "node web.js",
     "test": "echo \"No tests yet\" && exit 0",
     "webhook": "node webhook.js"
   },

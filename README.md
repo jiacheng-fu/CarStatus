@@ -1,7 +1,7 @@
 # CarStatus
 
-Your car's status (odometer, fuel, battery) from the command line or a small
-local dashboard, through the official [Smartcar](https://smartcar.com) API.
+Your car's status (odometer, fuel, battery) from the command line, through the
+official [Smartcar](https://smartcar.com) API.
 
 > BMW blocked unofficial API access on 2025-09-29, so this uses Smartcar, a
 > sanctioned third-party API (free developer plan: 1 connected vehicle, 3
@@ -30,11 +30,7 @@ Node SDK and its v2.0 API, which this project first used, are deprecated on
    your car brand and approve. For a Simulator car created with "automatically
    connect", skip Connect and copy its User ID from the dashboard:
    `npm run auth -- --user <user-id>`.
-4. **Read it:**
-   ```bash
-   npm start      # in the terminal
-   npm run web    # dashboard at http://localhost:8080
-   ```
+4. **Read it:** `npm start`
 
 ## The undocumented step: a webhook
 
@@ -64,9 +60,8 @@ cloudflared tunnel --url http://localhost:8787      # free HTTPS URL, no account
 ## Project structure
 
 - `status.js`: one reading of the car (application token → connection →
-  signals). Shared by the CLI and the dashboard.
-- `index.js`: the CLI.
-- `web.js`, `web/index.html`: the dashboard.
+  signals).
+- `index.js`: the CLI that prints it.
 - `auth.js`: connects a car once and remembers which Smartcar user owns it.
 - `webhook.js`: optional receiver that verifies the webhook and logs deliveries.
 - `tokens.js`: saves that user (`smartcar_connection.json`, gitignored).

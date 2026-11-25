@@ -1,7 +1,7 @@
 import 'dotenv/config';
 import { loadConnection } from './tokens.js';
 
-// --- One reading of the car, shared by the CLI (index.js) and the dashboard (web.js) ---
+// --- One reading of the car: everything index.js prints ---
 //
 // Smartcar API v3 over plain HTTP. The `smartcar` npm SDK and the v2.0 API this
 // project started on are deprecated on 2026-12-01, and new Smartcar apps only get

@@ -1,8 +1,7 @@
 import { getStatus } from './status.js';
 
 // --- CarStatus: your car's status from the command line ---
-// Prerequisite: `npm run auth` once to connect your car. `npm run web` shows the
-// same reading as a dashboard.
+// Prerequisite: `npm run auth` once to connect your car.
 
 const bar = (pct) => {
   const n = Math.round((pct / 100) * 20);

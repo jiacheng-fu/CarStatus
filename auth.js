@@ -20,7 +20,7 @@ if (flag !== -1) {
     process.exit(1);
   }
   saveConnection({ userId, via: 'dashboard' });
-  console.log('✅ Saved. Run `npm start` (or `npm run web`) to see the car.');
+  console.log('✅ Saved. Run `npm start` to see the car.');
   process.exit(0);
 }
 
@@ -57,7 +57,7 @@ const server = http.createServer((req, res) => {
     saveConnection({ userId, via: 'connect', mode });
     res.writeHead(200, { 'Content-Type': 'text/html' })
       .end('<h2>✅ CarStatus connected!</h2><p>You can close this tab and run <code>npm start</code>.</p>');
-    console.log('\n✅ Connected. Run `npm start` (or `npm run web`) to see your car.');
+    console.log('\n✅ Connected. Run `npm start` to see your car.');
   }
   server.close();
   setTimeout(() => process.exit(error || !userId ? 1 : 0), 100);
